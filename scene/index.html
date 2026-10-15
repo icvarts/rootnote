@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#171c1d" />
+    <link rel="icon" href="data:," />
+    <title>Rootnote Resonance</title>
+    <script src="./lifecycle.js"></script>
+    <script>
+      if (window.webkit?.messageHandlers?.rootnoteDesktop || new URLSearchParams(location.search).has("desktop")) {
+        document.documentElement.classList.add("desktop-runtime");
+      }
+    </script>
+  </head>
+  <body>
+    <main id="app" data-scene-state="companion" data-presentation="background">
+      <canvas id="scene-canvas" aria-hidden="true"></canvas>
+
+      <div id="young-tree-billboard" class="young-tree-billboard" aria-hidden="true">
+        <canvas id="young-tree-canvas"></canvas>
+        <span class="agent-node young-agent-node-1"></span>
+        <span class="agent-node young-agent-node-2"></span>
+        <span class="agent-node young-agent-node-3"></span>
+        <span class="agent-node young-agent-node-4"></span>
+        <span class="agent-node young-agent-node-5"></span>
+      </div>
+
+      <div id="tree-billboard" class="tree-billboard" aria-hidden="true">
+        <img class="tree-root-echo" src="./agents-tree-v2.png" alt="" />
+        <img class="tree-main" src="./agents-tree-v2.png" alt="" />
+        <span class="agent-node agent-node-1"></span>
+        <span class="agent-node agent-node-2"></span>
+        <span class="agent-node agent-node-3"></span>
+        <span class="agent-node agent-node-4"></span>
+        <span class="agent-node agent-node-5"></span>
+      </div>
+
+      <div id="rootnote-wrap" class="rootnote-wrap" data-state="companion">
+        <img id="rootnote" alt="Rootnote / 根音" draggable="false" />
+      </div>
+
+      <header class="scene-bar">
+        <div class="identity">
+          <span class="identity-mark" aria-hidden="true"></span>
+          <span>Rootnote Resonance</span>
+        </div>
+
+        <div class="state-switch" role="group" aria-label="场景状态">
+          <button type="button" data-state-button="companion" aria-pressed="true">同行</button>
+          <button type="button" data-state-button="margin" aria-pressed="false">探索</button>
+          <button type="button" data-state-button="agents" aria-pressed="false">共振</button>
+          <button type="button" data-state-button="shelter" aria-pressed="false">展开</button>
+        </div>
+
+        <button id="demo-toggle" class="icon-button" type="button" aria-label="播放状态演示" title="播放状态演示">
+          <span aria-hidden="true">▶</span>
+        </button>
+      </header>
+
+      <div class="reaction-dock" role="group" aria-label="任务反馈">
+        <button type="button" data-modifier-button="waiting" aria-pressed="false">等待</button>
+        <button type="button" data-modifier-button="failure" aria-pressed="false">冲击</button>
+        <button type="button" data-modifier-button="review" aria-pressed="false">完成</button>
+      </div>
+
+      <footer class="scene-status" aria-live="polite">
+        <span id="status-state">同行</span>
+        <span id="status-role">在场</span>
+        <span class="status-divider" aria-hidden="true"></span>
+        <span id="status-agents">协作 0</span>
+        <span class="status-divider" aria-hidden="true"></span>
+        <span id="status-pressure">负荷 0</span>
+      </footer>
+
+      <p id="state-caption" class="state-caption">保持在场</p>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,38 @@
+# Rootnote
+
+A local-first macOS companion for Codex, combining a desktop character, task visibility, resource warnings and account usage limits.
+
+Rootnote provides editable native and web source, a Three.js environment, character assets and regression tests.
+The character itself is rendered by a compatible Codex client; its native voice, messaging and notification controls are not part of this repository.
+
+## Source preview
+
+Version 0.10.6 is a source preview, not a notarized consumer download.
+Building requires a macOS 26 SDK, Node.js 22.12+ and pnpm 10.19+.
+The deployment target is macOS 14, but older systems and Intel hardware are not yet validated.
+Native Liquid Glass is used on macOS 26, with material fallbacks on older systems.
+
+```sh
+git clone https://github.com/icvarts/rootnote.git
+cd rootnote
+npm ci
+npm test
+npm run build
+zsh scripts/install.sh
+```
+
+The installer refuses to overwrite an existing app. It does not launch the app, add login items or modify Codex.
+Optional character installation: `zsh scripts/install-pet.sh`.
+
+## Boundaries
+
+- Session file size is not token usage or context length.
+- Warnings do not automatically archive tasks, kill processes or clear caches.
+- The follow-up arrow copies text and opens a conversation; it does not send it.
+- Account fields are shown only when returned by the client interface.
+- Activity classification parses local event fields in memory, including some tool inputs/outputs. Full conversation copies are not persisted.
+- No Rootnote cloud telemetry; Codex CLI may contact OpenAI for account limits.
+- Independent community software, not an official Apple or OpenAI product.
+
+Code and documentation: [MIT](../LICENSE). Character/image permissions: [asset notice](../ASSETS.md).
+See the Chinese [installation](INSTALL.md), [privacy](PRIVACY.md) and [development](DEVELOPMENT.md) guides.

@@ -1,0 +1,21 @@
+{
+  "name": "rootnote",
+  "version": "0.10.6",
+  "private": true,
+  "description": "Local-first macOS companion and performance guard for Codex",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "test": "node --test tests/panel-model.test.cjs",
+    "test:browser": "node tests/panel-browser.test.cjs",
+    "test:scene": "node tests/scene-browser.test.cjs",
+    "test:native": "zsh scripts/test-native.sh",
+    "build:scene": "npm --prefix scene run build",
+    "build": "zsh scripts/build.sh"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

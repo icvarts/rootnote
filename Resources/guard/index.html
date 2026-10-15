@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rootnote 性能详情</title>
+  <link rel="stylesheet" href="./guard.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="risk-summary">
+      <div id="pet-stage" class="pet-stage green" aria-hidden="true">
+        <span class="pet-aura"></span>
+        <img id="status-pet" src="../scene/rootnote/idle/00.png" alt="">
+      </div>
+      <div class="risk-copy">
+        <h1 id="headline">系统呼吸平稳</h1>
+        <p id="recommendation">状态正常，可以继续使用。</p>
+        <span id="observed-at" class="muted">等待第一份本地快照</span>
+      </div>
+      <div class="summary-facts">
+        <div id="status-chip" class="status-chip green">
+          <span id="status-symbol" class="status-symbol">✓</span>
+          <span id="severity-label">正常</span>
+        </div>
+        <div id="risk-session-fact" class="summary-fact risk green">
+          <strong id="risk-session-count">0</strong>
+          <span>需关注会话</span>
+        </div>
+        <div class="summary-fact">
+          <strong id="task-count">0</strong>
+          <span>运行任务</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="session-card">
+      <div class="section-heading">
+        <h2>会话风险清单</h2>
+        <span class="privacy">只读元数据 · 红黄优先</span>
+      </div>
+      <p id="risk-context" class="risk-context">正在核对打开的会话…</p>
+      <div id="session-list" class="session-list"></div>
+    </section>
+
+    <section class="evidence-strip" aria-label="系统性能辅证">
+      <article class="evidence">
+        <span>内存</span>
+        <strong id="memory">—</strong>
+        <small id="free-memory">—</small>
+      </article>
+      <article class="evidence">
+        <span>Swap</span>
+        <strong id="swap">—</strong>
+        <small>原守卫阈值</small>
+      </article>
+      <article class="evidence">
+        <span>压缩内存</span>
+        <strong id="compressed">—</strong>
+        <small>原守卫阈值</small>
+      </article>
+      <article class="evidence">
+        <span>打开会话</span>
+        <strong id="sessions-summary">—</strong>
+        <small>只读元数据</small>
+      </article>
+    </section>
+
+    <details class="history-card">
+      <summary>
+        <span>
+          <span class="eyebrow">最近 24 小时</span>
+          <strong>查看活动会话体积趋势</strong>
+        </span>
+        <span id="history-total">—</span>
+      </summary>
+      <svg id="history-chart" viewBox="0 0 800 150" role="img" aria-label="活动会话体积趋势">
+        <defs>
+          <linearGradient id="area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#77d6ac" stop-opacity=".28"/>
+            <stop offset="1" stop-color="#77d6ac" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path id="history-area" class="history-area"/>
+        <path id="history-line" class="history-line"/>
+      </svg>
+    </details>
+
+    <footer>
+      <span id="collector-health">采集器：等待</span>
+      <span>不保存正文 · 不自动处置</span>
+    </footer>
+  </main>
+  <script src="./app.js"></script>
+</body>
+</html>

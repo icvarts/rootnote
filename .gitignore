@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/
+scene/dist/
+.build/
+qa-output/
+*.app/
+*.dmg
+*.zip
+*.log
+.env
+.env.*
+!.env.example

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Rootnote</title>
+  <link rel="stylesheet" href="panel.css">
+  <script defer src="lucide.min.js"></script>
+  <script defer src="model.js"></script>
+  <script defer src="panel.js"></script>
+</head>
+<body>
+  <div id="app" class="shell">
+    <header class="titlebar">
+      <button id="close" class="browser-close" title="隐藏 Rootnote" aria-label="隐藏 Rootnote"></button>
+      <div class="brand"><i data-lucide="sprout"></i><span>Rootnote</span></div>
+      <div class="window-tools">
+        <button id="settings" class="icon" aria-pressed="false" title="设置" aria-label="设置"><i data-lucide="sliders-horizontal"></i></button>
+      </div>
+    </header>
+    <nav class="tabs" role="tablist" aria-label="Rootnote 面板">
+      <button role="tab" id="tab-tasks" aria-controls="view-tasks" aria-selected="true" data-tab="tasks"><i data-lucide="list-checks"></i>任务<span id="task-count" class="count"></span></button>
+      <button role="tab" id="tab-performance" aria-controls="view-performance" aria-selected="false" tabindex="-1" data-tab="performance"><i data-lucide="activity"></i>性能<span id="risk-dot" class="status-dot"></span></button>
+      <button role="tab" id="tab-quota" aria-controls="view-quota" aria-selected="false" tabindex="-1" data-tab="quota"><i data-lucide="gauge"></i>额度<span id="quota-dot" class="status-dot"></span></button>
+    </nav>
+    <main>
+      <section id="view-tasks" class="view task-view" role="tabpanel" aria-labelledby="tab-tasks">
+        <div class="page-heading"><h1>本机会话</h1><div class="heading-actions"><span id="task-summary" class="summary-line"></span><button class="icon" data-refresh="performance" title="刷新任务状态" aria-label="刷新任务状态"><i data-lucide="refresh-cw"></i></button></div></div>
+        <div class="scroll task-scroll"><div id="tasks"></div></div>
+        <div id="followup" class="followup">
+          <div class="followup-head"><span id="followup-label">跟进草稿</span><button id="open-thread" class="text-button action" title="在 Codex 中打开"><i data-lucide="arrow-up-right"></i><span>查看会话</span></button></div>
+          <div class="composer"><textarea id="prompt" rows="3" maxlength="6000" placeholder="先选择任务" aria-label="跟进草稿" disabled></textarea><button id="send" class="action primary" title="复制内容并打开会话，需在 Codex 中粘贴发送" aria-label="复制内容并打开会话" disabled><i data-lucide="arrow-up"></i></button></div>
+          <div class="composer-actions"><span class="caption" id="permission-note">复制并打开 Codex，粘贴后发送</span></div>
+        </div>
+      </section>
+      <section id="view-performance" class="view scroll" role="tabpanel" aria-labelledby="tab-performance" hidden>
+        <div class="page-heading"><h1>设备与会话</h1><div class="heading-actions"><span id="performance-status" class="badge">读取中</span><button class="icon" data-refresh="performance" title="刷新性能" aria-label="刷新性能"><i data-lucide="refresh-cw"></i></button></div></div>
+        <p id="performance-error" class="inline-alert" role="status" hidden></p>
+        <div id="risks"></div>
+        <p class="caption definition" id="size-definition">按本地文件体积提醒，不代表上下文或 token 用量；归档不等于删除文件或立即释放内存。</p>
+        <section class="content-group"><div class="section-heading"><h2>系统资源</h2></div><div class="metric-strip" id="metrics"></div></section>
+      </section>
+      <section id="view-quota" class="view scroll" role="tabpanel" aria-labelledby="tab-quota" hidden>
+        <div class="page-heading"><h1>账号额度</h1><div class="heading-actions"><button class="icon" data-refresh="account" title="同步当前账号" aria-label="同步当前账号"><i data-lucide="refresh-cw"></i></button><button id="quota-help" class="icon" title="账号同步说明" aria-label="账号同步说明"><i data-lucide="circle-help"></i></button></div></div>
+        <p id="quota-error" class="inline-alert" role="status" hidden></p>
+        <div id="accounts"></div>
+        <p class="caption account-note">切换 Codex 账号后刷新，即可更新对应记录。</p>
+      </section>
+      <section id="view-settings" class="view scroll" aria-label="设置" hidden>
+        <div class="page-heading"><h1>设置</h1></div>
+        <section class="settings-group"><div class="setting-row"><h2>外观</h2><div class="segmented" role="group" aria-label="外观"><button data-appearance="light">浅色</button><button data-appearance="dark">深色</button></div></div><div class="setting-row"><div><h2>窗口置顶</h2><p>切到其他应用时，面板仍保持最前</p></div><button id="pin" class="switch" role="switch" aria-checked="false" aria-label="窗口置顶"></button></div></section>
+        <section class="settings-group">
+          <h2 class="group-label">额度提醒</h2>
+          <div class="setting-row"><h2>赠送机会即将到期</h2><button class="switch" role="switch" data-setting="giftReminder" aria-label="赠送机会到期提醒"></button></div>
+          <div class="setting-row subordinate"><span>提前提醒</span><div class="segmented" role="group" aria-label="提前提醒天数"><button data-days="1">1 天</button><button data-days="3">3 天</button><button data-days="7">7 天</button></div></div>
+          <div class="setting-row"><div><h2>到达预计重置时间</h2><p>是否恢复，以重新同步为准</p></div><button class="switch" role="switch" data-setting="resetReminder" aria-label="预计额度重置提醒"></button></div>
+          <div class="setting-row"><div><h2>额度提醒圆点</h2><p>显示在宠物旁和额度标签，不影响性能提醒</p></div><button class="switch" role="switch" data-setting="quiet" data-inverted="true" aria-label="显示额度提醒"></button></div>
+        </section>
+        <section class="settings-group">
+          <h2 class="group-label">数据与隐私</h2>
+          <p class="caption">设置与脱敏额度记录保存在本机，不保存密码、登录令牌或对话正文。</p>
+          <button id="clear" class="text-button danger">清除本地额度记录</button>
+          <div id="clear-confirm" class="confirm" hidden><p>设置保留，不退出 Codex。自动同步后会重新记录当前账号额度。</p><button id="clear-cancel" class="text-button">取消</button><button id="clear-yes" class="text-button danger">确认清除</button></div>
+        </section>
+      </section>
+    </main>
+    <footer><span id="footer-status">等待读取本机数据</span><time id="updated"></time></footer>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <dialog id="help-dialog"><div class="page-heading"><h2>账号同步</h2><button id="help-close" class="icon" aria-label="关闭说明"><i data-lucide="x"></i></button></div><p>仅同步本机 Codex 当前登录的账号。其他账号保留上次记录，不会在后台自动更新。</p><p>会员到期时间未提供，不用于推算额度或赠送机会的有效期。</p><p>Rootnote 不切换账号，也不代为使用重置机会。</p></dialog>
+  </div>
+</body>
+</html>

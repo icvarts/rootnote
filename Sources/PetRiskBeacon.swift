@@ -685,19 +685,27 @@ private enum RootnoteEditingMenu {
     }
 }
 
+private final class RootnoteDetailPanel: NSPanel {
+    override var canBecomeKey: Bool { true }
+    override var canBecomeMain: Bool { false }
+}
+
 final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMessageHandler, NSWindowDelegate {
-    private let window: NSWindow
+    private let window: RootnoteDetailPanel
     private let webView: WKWebView
     private var ready = false
     private var latestSnapshot: [String: Any]?
     private var isPresented = false
-    private let store = RootnotePanelStore()
+    private let store: RootnotePanelStore
     var onPanelContextChange: ((String?, String) -> Void)?
     private var pinned = false
     private var chrome = RootnotePanelChrome()
     private var chromeAppearance: String?
     private var chromeContext: [String: Any] = [:]
     private var currentTab = "tasks"
+    private var requestedTab: String?
+    private var quotaPresentationGeneration: UInt64 = 0
+    var onAccountSnapshot: (([String: Any]) -> Void)?
     var onRefresh: (() -> Void)?
     var onVisibilityChanged: ((Bool) -> Void)?
 
@@ -705,13 +713,16 @@ final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMes
         isVisible ? "隐藏 Rootnote 面板" : "打开 Rootnote 面板"
     }
 
-    override init() {
+    override convenience init() { self.init(store: RootnotePanelStore()) }
+
+    init(store: RootnotePanelStore) {
+        self.store = store
         let configuration = WKWebViewConfiguration()
         configuration.websiteDataStore = .nonPersistent()
         webView = WKWebView(frame: .zero, configuration: configuration)
-        window = NSWindow(
+        window = RootnoteDetailPanel(
             contentRect: NSRect(x: 0, y: 0, width: 544, height: 650),
-            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView],
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView, .nonactivatingPanel],
             backing: .buffered,
             defer: false
         )
@@ -749,6 +760,8 @@ final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMes
         window.collectionBehavior = [.moveToActiveSpace, .fullScreenAuxiliary]
         window.level = .normal
         window.hidesOnDeactivate = false
+        window.becomesKeyOnlyIfNeeded = true
+        window.isFloatingPanel = false
         for buttonType in [
             NSWindow.ButtonType.miniaturizeButton,
             .zoomButton,
@@ -782,6 +795,7 @@ final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMes
         webView.evaluateJavaScript("document.documentElement.classList.add('native-chrome')") { [weak self] _, _ in
             self?.ready = true
             self?.pushLatestSnapshot()
+            self?.applyRequestedTab()
         }
     }
 
@@ -791,21 +805,51 @@ final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMes
     }
 
     func startAccountSync() { store.start() }
+    func stopAccountSync() { store.stop() }
 
-    func show(activateApp: Bool = true) {
+    // An explicit show operation; never toggles or touches companion visibility.
+    func showQuota() {
+        quotaPresentationGeneration &+= 1
+        requestedTab = "quota"
+        applyRequestedTab()
+    }
+
+    // Both entry points own the same window, including a not-yet-ready quota request.
+    func toggleQuota() {
+        if requestedTab != nil || detailVisible {
+            hide()
+            return
+        }
+        showQuota()
+    }
+
+    private func applyRequestedTab() {
+        guard ready, let tab = requestedTab else { return }
+        let expected = quotaPresentationGeneration
+        webView.evaluateJavaScript("window.RootnotePanel.showTab('\(tab)')") { [weak self] _, error in
+            guard let self, self.quotaPresentationGeneration == expected, self.requestedTab == tab else { return }
+            guard error == nil else { return }
+            self.requestedTab = nil
+            self.show()
+        }
+    }
+
+    func show(activateApp: Bool = false) {
         if !CommandLine.arguments.contains("--presentation-self-test") { store.start() }
         pushLatestSnapshot()
         if window.isMiniaturized {
             window.deminiaturize(nil)
         }
         if activateApp { NSApp.activate(ignoringOtherApps: true) }
-        window.makeKeyAndOrderFront(nil)
+        // Viewing the panel must not deactivate the host or change its inactive
+        // window colors. Editable controls can borrow key focus when needed.
+        window.orderFrontRegardless()
         isPresented = true
         visibilityChanged()
     }
 
     func toggle() {
-        if isPresented && window.isVisible && window.isOnActiveSpace {
+        if requestedTab != nil || detailVisible {
             hide()
             return
         }
@@ -815,10 +859,12 @@ final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMes
     func hide() {
         window.orderOut(nil)
         isPresented = false
+        quotaPresentationGeneration &+= 1
+        requestedTab = nil
         visibilityChanged()
     }
 
-    var detailVisible: Bool { isPresented && window.isVisible && window.isOnActiveSpace }
+    var detailVisible: Bool { isPresented && window.isVisible && !window.isMiniaturized && window.isOnActiveSpace }
 
     func windowShouldClose(_ sender: NSWindow) -> Bool {
         hide()
@@ -848,6 +894,7 @@ final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMes
     }
 
     private func pushLatestSnapshot() {
+        onAccountSnapshot?(store.payload)
         guard ready else { return }
         let snapshot: [String: Any] = ["performance": latestSnapshot as Any? ?? NSNull(), "account": store.payload,
                                       "pinned": pinned]
@@ -867,8 +914,7 @@ final class PetRiskDetailController: NSObject, WKNavigationDelegate, WKScriptMes
         case "dark": window.appearance = NSAppearance(named: .darkAqua)
         default: window.appearance = nil
         }
-        // Keep application-provided controls in the same explicit appearance.
-        NSApp.appearance = window.appearance
+        // Appearance belongs to this window; don't retheme unrelated app surfaces.
         let mode = store.settings["appearance"] as? String ?? "light"
         if chromeAppearance != mode, let content = window.contentView {
             // Recreate native material hosts to discard the previous theme's backdrop.
@@ -1120,10 +1166,23 @@ final class PetRiskPerformanceCoordinator {
     }
 }
 
+// Shared by the installed product path and the isolated functional acceptance entry.
+enum SidebarQuotaConnection {
+    static func connect(sidebar: SidebarQuotaCoordinator, details: PetRiskDetailController,
+                        onSnapshot: @escaping ([String: Any]) -> Void = { _ in }) {
+        sidebar.onOpen = { [weak details] in details?.toggleQuota() }
+        details.onAccountSnapshot = { [weak sidebar] payload in
+            sidebar?.update(account: payload)
+            onSnapshot(payload)
+        }
+    }
+}
+
 final class PetRiskBeaconCoordinator {
     private let visibility: CompanionVisibility
     private let beacon = PetRiskBeaconPanelController()
     private let details = PetRiskDetailController()
+    private let sidebarQuota = SidebarQuotaCoordinator()
     private let performance = PetRiskPerformanceCoordinator()
     private let nativeBridgeID = UUID().uuidString
     private var nativeDetailTimer: Timer?
@@ -1135,6 +1194,7 @@ final class PetRiskBeaconCoordinator {
 
     init(visibility: CompanionVisibility) {
         self.visibility = visibility
+        SidebarQuotaConnection.connect(sidebar: sidebarQuota, details: details)
         details.onVisibilityChanged = { [weak self] visible in
             self?.onDetailVisibilityChanged?(visible)
         }
@@ -1159,6 +1219,7 @@ final class PetRiskBeaconCoordinator {
     func start() {
         performance.start()
         details.startAccountSync()
+        sidebarQuota.start()
         if PetRiskBeaconPanelController.Geometry.pairedNativeControls, nativeDetailTimer == nil {
             let timer = Timer(timeInterval: 0.15, repeats: true) { [weak self] _ in self?.consumeNativeDetailRequest() }
             RunLoop.main.add(timer, forMode: .common)
@@ -1168,6 +1229,7 @@ final class PetRiskBeaconCoordinator {
 
     func stop() {
         nativeDetailTimer?.invalidate()
+        sidebarQuota.stop()
         nativeDetailTimer = nil
         performance.stop()
         beacon.hide()
@@ -1367,6 +1429,14 @@ extension PetRiskDetailController {
         checks["other_traffic_lights_hidden"] = window.standardWindowButton(.miniaturizeButton)?.isHidden == true &&
             window.standardWindowButton(.zoomButton)?.isHidden == true
         checks["initial_menu_open"] = Self.menuTitle(isVisible: detailVisible) == "打开 Rootnote 面板"
+        checks["panel_is_nonactivating_and_key_only_when_needed"] = window.styleMask.contains(.nonactivatingPanel) && window.becomesKeyOnlyIfNeeded && !window.canBecomeMain
+        let appAppearance = NSApp.appearance
+        let originalAppearance = store.settings["appearance"] as? String ?? "light"
+        store.set(key: "appearance", value: "dark")
+        checks["dark_setting_does_not_change_application_appearance"] = NSApp.appearance === appAppearance && window.appearance?.name == .darkAqua
+        store.set(key: "appearance", value: "light")
+        checks["light_setting_does_not_change_application_appearance"] = NSApp.appearance === appAppearance && window.appearance?.name == .aqua
+        store.set(key: "appearance", value: originalAppearance)
         show(activateApp: false)
         checks["show_switches_menu_to_hide"] = detailVisible && titles.last == "隐藏 Rootnote 面板"
         window.contentView?.layoutSubtreeIfNeeded()
@@ -1470,9 +1540,9 @@ extension PetRiskDetailController {
                             checks["\(theme)_\(view)_rendered"] = error == nil && value["visible"] as? Bool == true && (value["width"] as? Int ?? 0) > 400 && value["width"] as? Int == value["bodyWidth"] as? Int
                             checks["\(theme)_\(view)_native_navigation_synced"] = self.currentTab == view &&
                                 self.chrome.tools.count == 1 && (self.chrome.tools[0].state == .on) == (view == "settings")
-                            checks["\(theme)_\(view)_application_appearance_synced"] =
-                                NSApp.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) ==
-                                self.window.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua])
+                            checks["\(theme)_\(view)_window_appearance_scoped"] =
+                                self.window.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) ==
+                                (theme == "dark" ? .darkAqua : .aqua)
                             checks["\(theme)_\(view)_native_text_contrast"] = self.chrome.tabs.allSatisfy { button in
                                 guard let color = (button.attributedTitle.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? NSColor)?.usingColorSpace(.sRGB) else { return false }
                                 let brightness = (color.redComponent + color.greenComponent + color.blueComponent) / 3
@@ -1492,6 +1562,141 @@ extension PetRiskDetailController {
         }
         next()
     }
+}
+
+
+func runSidebarQuotaPresentationSelfTest() -> Int32 {
+    guard RootnoteRuntimePaths.isCandidate, CommandLine.arguments.contains("--presentation-self-test") else { return 2 }
+    _ = NSApplication.shared
+    NSApp.setActivationPolicy(.accessory)
+    let controller = PetRiskDetailController()
+    let checks = controller.quotaPresentationChecks()
+    let report: [String: Any] = ["ok": checks.values.allSatisfy { $0 }, "checks": checks,
+        "scope": "own_isolated_detail_window_only", "liveCodexInspected": false, "realAccountRead": false]
+    if let data = try? JSONSerialization.data(withJSONObject: report, options: [.prettyPrinted, .sortedKeys]) {
+        FileHandle.standardOutput.write(data); print("")
+    }
+    return checks.values.allSatisfy { $0 } ? 0 : 1
+}
+
+extension PetRiskDetailController {
+    fileprivate func matchesLiveWeeklyValue(_ expected: Double, row: Int, completion: @escaping (Bool) -> Void) {
+        let script = """
+        (()=>{const a=document.querySelector('#accounts .account');
+        const r=a?.querySelectorAll('.quota-window')[\(row)];
+        const v=parseFloat(r?.querySelector('strong')?.firstChild?.textContent || '');
+        return window.RootnotePanel.currentTab()==='quota' && !document.getElementById('view-quota').hidden &&
+        Boolean(a?.querySelector('.badge.green')) && Number.isFinite(v) && Math.abs(v-\(expected))<0.11})()
+        """
+        webView.evaluateJavaScript(script) { result, error in completion(error == nil && result as? Bool == true) }
+    }
+
+    fileprivate func quotaPresentationChecks() -> [String: Bool] {
+        var checks: [String: Bool] = [:]
+        func wait(_ condition: () -> Bool, seconds: TimeInterval = 6) -> Bool {
+            let end = Date().addingTimeInterval(seconds)
+            while !condition(), Date() < end {
+                RunLoop.current.run(until: Date().addingTimeInterval(0.02))
+            }
+            return condition()
+        }
+        // A second entry click cancels an opening before WebKit is ready.
+        toggleQuota()
+        toggleQuota()
+        checks["second_click_cancels_before_page_ready"] = !isPresented && requestedTab == nil
+        checks["cancelled_early_request_stays_closed_when_ready"] = wait { ready } && !isPresented
+        toggleQuota()
+        toggle()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        checks["performance_entry_cancels_inflight_quota_open"] = !isPresented && requestedTab == nil
+        // An explicit show still waits for the real page and is idempotent.
+        showQuota()
+        checks["opens_after_page_ready"] = wait { ready && requestedTab == nil && isPresented }
+        var tab: String?
+        webView.evaluateJavaScript("window.RootnotePanel.currentTab()") { result, _ in tab = result as? String }
+        checks["opens_existing_quota_tab"] = wait { tab == "quota" }
+        let number = window.windowNumber
+        showQuota()
+        showQuota()
+        checks["repeat_request_keeps_same_window_visible"] = wait {
+            requestedTab == nil && isPresented && window.windowNumber == number
+        }
+        hide()
+        checks["hide_cancels_pending_open"] = !isPresented && requestedTab == nil
+        showQuota()
+        hide()
+        RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        checks["late_javascript_cannot_reopen_closed_window"] = !isPresented && requestedTab == nil
+        showQuota()
+        checks["can_reopen_quota_after_close"] = wait { requestedTab == nil && isPresented }
+        let sidebar = SidebarQuotaCoordinator()
+        SidebarQuotaConnection.connect(sidebar: sidebar, details: self)
+        sidebar.onOpen?()
+        checks["sidebar_closes_already_open_panel"] = !detailVisible
+        toggle()
+        webView.evaluateJavaScript("window.RootnotePanel.showTab('performance')")
+        RunLoop.current.run(until: Date().addingTimeInterval(0.1))
+        sidebar.onOpen?()
+        checks["sidebar_closes_panel_on_performance_tab"] = !detailVisible
+        sidebar.onOpen?()
+        checks["sidebar_reopens_same_native_window"] = wait { detailVisible && requestedTab == nil } && window.windowNumber == number
+        toggle()
+        checks["performance_entry_closes_same_native_window"] = !detailVisible
+        sidebar.onOpen?()
+        _ = wait { detailVisible && requestedTab == nil }
+        window.standardWindowButton(.closeButton)?.performClick(nil)
+        checks["native_close_resets_shared_panel"] = !detailVisible && requestedTab == nil
+        sidebar.onOpen?()
+        checks["sidebar_reopens_after_native_close"] = wait { detailVisible && requestedTab == nil } && window.windowNumber == number
+        // The product disables its minimize button; enable it only in this isolated check.
+        let minimize = window.standardWindowButton(.miniaturizeButton)
+        minimize?.isEnabled = true
+        window.miniaturize(nil)
+        checks["minimized_panel_is_not_visible_toggle_target"] = wait { window.isMiniaturized } && !detailVisible
+        sidebar.onOpen?()
+        checks["sidebar_restores_minimized_shared_window"] = wait { detailVisible && requestedTab == nil && !window.isMiniaturized } && window.windowNumber == number
+        minimize?.isEnabled = false
+        hide()
+        return checks
+    }
+}
+
+// Read back only this process's existing quota page, populated from a real sanitized API result.
+// The target-side AX adapter is never started, and live account metadata is discarded afterwards.
+func verifyExistingQuotaPage(account: [String: Any], expected: Double?) -> Bool {
+    guard RootnoteRuntimePaths.isCandidate, CommandLine.arguments.contains("--presentation-self-test"), let expected else { return false }
+    _ = NSApplication.shared; NSApp.setActivationPolicy(.accessory)
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent("rootnote-live-quota-\(UUID().uuidString)")
+    let previous = ProcessInfo.processInfo.environment["ROOTNOTE_PANEL_STATE"]
+    setenv("ROOTNOTE_PANEL_STATE", directory.path, 1)
+    defer {
+        if let previous { setenv("ROOTNOTE_PANEL_STATE", previous, 1) } else { unsetenv("ROOTNOTE_PANEL_STATE") }
+        try? FileManager.default.removeItem(at: directory)
+    }
+    let store = RootnotePanelStore(readAccount: { account })
+    let detail = PetRiskDetailController(store: store), sidebar = SidebarQuotaCoordinator()
+    SidebarQuotaConnection.connect(sidebar: sidebar, details: detail)
+    defer { detail.stopAccountSync(); detail.hide(); sidebar.stop() }
+    func wait(_ condition: () -> Bool) -> Bool {
+        let deadline = Date().addingTimeInterval(8)
+        while !condition(), Date() < deadline { RunLoop.current.run(until: Date().addingTimeInterval(0.02)) }
+        return condition()
+    }
+    store.refresh()
+    guard wait({ !store.syncing && sidebar.currentValue.remaining == expected }) else { return false }
+    sidebar.onOpen?()
+    guard wait({ detail.detailVisible }) else { return false }
+    var offset = 0, weekRow: Int?
+    for bucket in account["buckets"] as? [[String: Any]] ?? [] {
+        for window in bucket["windows"] as? [[String: Any]] ?? [] {
+            if bucket["id"] as? String == "codex", SidebarQuotaValue.number(window["minutes"]) == 10080 { weekRow = offset }
+            offset += 1
+        }
+    }
+    guard let weekRow else { return false }
+    var done = false, matches = false
+    detail.matchesLiveWeeklyValue(expected, row: weekRow) { value in matches = value; done = true }
+    return wait({ done }) && matches
 }
 
 func runPanelLiveCheck() {

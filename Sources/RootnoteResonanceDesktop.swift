@@ -1841,6 +1841,26 @@ private func runAnchorProbe() -> Int32 {
     return 0
 }
 
+if CommandLine.arguments.contains("--sidebar-quota-functional-self-test") {
+    exit(runSidebarQuotaFunctionalSelfTest())
+}
+
+if CommandLine.arguments.contains("--sidebar-quota-live-read-check") {
+    exit(runSidebarQuotaLiveReadCheck())
+}
+
+if CommandLine.arguments.contains("--sidebar-quota-self-test") {
+    exit(runSidebarQuotaSelfTest())
+}
+
+if CommandLine.arguments.contains("--sidebar-quota-presentation-self-test") {
+    exit(runSidebarQuotaPresentationSelfTest())
+}
+
+if CommandLine.arguments.contains("--sidebar-quota-component-self-test") {
+    exit(runSidebarQuotaComponentSelfTest())
+}
+
 if CommandLine.arguments.contains("--panel-data-self-test") {
     exit(runPanelDataSelfTest())
 }
@@ -1916,6 +1936,11 @@ if CommandLine.arguments.contains("--collector-json") {
         exit(0)
     }
     exit(1)
+}
+
+if Bundle.main.bundleIdentifier == "com.cv.rootnote-sidebar-acceptance" {
+    runSidebarQuotaFunctionalAcceptance()
+    exit(0)
 }
 
 if RootnoteRuntimePaths.isCandidate && !CommandLine.arguments.contains("--observe-live") {

@@ -1,0 +1,15 @@
+.quota-button{box-sizing:border-box;appearance:none;-webkit-appearance:none;position:relative;width:36px;height:116px;padding:0;border:0;border-radius:18px;background:var(--surface);color:var(--ink);display:block;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;cursor:pointer;box-shadow:0 1px 3px #00000038;outline-offset:-2px}
+.quota-button:focus-visible,.keyboard-focus .quota-button{outline:2px solid var(--accent)}
+.quota-ring{position:absolute;left:6px;top:16px;display:block;width:24px;height:24px;overflow:visible}
+.quota-ring circle{fill:none;stroke-width:3}
+.quota-ring .track{stroke:var(--track)}
+.quota-ring .value{stroke:var(--accent);stroke-linecap:round;transform:rotate(-90deg);transform-origin:12px 12px;stroke-dasharray:var(--progress) 100}
+.quota-percent{position:absolute;left:4px;top:52px;width:28px;height:16px;font-size:11px;line-height:16px;font-weight:500;font-variant-numeric:tabular-nums;letter-spacing:0;text-align:center;white-space:nowrap}
+.hundred .quota-percent{font-size:9px}
+.quota-label{position:absolute;left:4px;top:77px;width:28px;height:13px;font-size:9px;line-height:13px;color:var(--muted);white-space:nowrap;text-align:center}
+.dark{--surface:rgba(22,25,24,.95);--opaque-surface:#161918;--ink:#f1f6f2;--muted:#b6c6bc;--accent:#3ed29c;--track:#3c5145}
+.light{--surface:rgba(240,242,241,.95);--opaque-surface:#f0f2f1;--ink:#243a2d;--muted:#4e6558;--accent:#087f56;--track:#b7cbbf}
+.reduce-transparency .quota-button{background:var(--opaque-surface)}
+.input-only .quota-button{background:transparent;box-shadow:none;outline:none}
+.input-only .quota-button>*{visibility:hidden}
+.low{--accent:#e1ac57}.stale{--accent:var(--muted)}.stale .value{display:none}.stale .quota-percent{color:var(--muted)}

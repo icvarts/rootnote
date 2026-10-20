@@ -184,8 +184,13 @@ final class RootnotePanelStore {
     private(set) var error: String?
     private var timer: Timer?
     private var generation = 0
+    private let readAccount: () throws -> [String: Any]
 
-    init() {
+    init(readAccount: @escaping () throws -> [String: Any] = {
+        let reader = RootnoteAccountReader()
+        return try withExtendedLifetime(reader) { try reader.read() }
+    }) {
+        self.readAccount = readAccount
         // Preserve the effective appearance once when migrating the old automatic mode.
         settings["appearance"] = NSApplication.shared.effectiveAppearance.bestMatch(from: [.aqua, .darkAqua]) == .darkAqua ? "dark" : "light"
         let file = RootnotePanelPaths.state.appendingPathComponent("panel.json")
@@ -206,6 +211,15 @@ final class RootnotePanelStore {
         guard timer == nil else { return }
         refresh()
         timer = Timer.scheduledTimer(withTimeInterval: 120, repeats: true) { [weak self] _ in self?.refresh() }
+    }
+
+    func stop() {
+        generation += 1
+        timer?.invalidate(); timer = nil
+        syncing = false
+        lastKnownAccount = currentAccount ?? lastKnownAccount
+        currentAccount = nil
+        onChange?()
     }
 
     var payload: [String: Any] {
@@ -244,13 +258,14 @@ final class RootnotePanelStore {
         currentAccount = nil
         let expected = generation
         onChange?()
+        let readAccount = self.readAccount
         DispatchQueue.global(qos: .utility).async { [weak self] in
-            let reader = RootnoteAccountReader()
-            let result = Result { try withExtendedLifetime(reader) { try reader.read() } }
+            let result = Result { try readAccount() }
             DispatchQueue.main.async {
                 guard let self else { return }
+                // A stopped/cleared request cannot override a newer sync's state or identity.
+                guard self.generation == expected else { return }
                 self.syncing = false
-                guard self.generation == expected else { self.onChange?(); return }
                 switch result {
                 case .success(let account):
                     self.currentAccount = account["id"] as? String
@@ -281,7 +296,7 @@ final class RootnotePanelStore {
     }
 
     func clearAccounts() {
-        generation += 1; accounts = []; currentAccount = nil; lastKnownAccount = nil; error = nil
+        generation += 1; syncing = false; accounts = []; currentAccount = nil; lastKnownAccount = nil; error = nil
         save(); onChange?()
     }
 

@@ -12,6 +12,8 @@ xcrun swiftc "$output_root/main.swift" \
   "$project_dir/Sources/PetRiskBeacon.swift" \
   "$project_dir/Sources/ApprovalBridge.swift" \
   "$project_dir/Sources/RootnotePanelStore.swift" \
+  "$project_dir/Sources/SidebarQuota.swift" \
+  "$project_dir/Sources/SidebarQuotaAcceptance.swift" \
   "$output_root/PerformanceCollector.o" \
   -import-objc-header "$project_dir/Sources/PerformanceCollector.h" \
   -framework AppKit -framework ApplicationServices -framework CoreGraphics \

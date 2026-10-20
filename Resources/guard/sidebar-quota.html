@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'none'; connect-src 'none'">
+<link rel="stylesheet" href="sidebar-quota.css">
+<style>html,body{margin:0;width:44px;height:124px;background:transparent;overflow:hidden}body{padding:4px;box-sizing:border-box}</style>
+<button id="quota" class="quota-button dark stale" style="--progress:0" aria-label="周额度待同步，点击打开额度页" title="周额度待同步，点击打开额度页">
+<svg class="quota-ring" viewBox="0 0 24 24" aria-hidden="true"><circle class="track" cx="12" cy="12" r="10"/><circle class="value" cx="12" cy="12" r="10" pathLength="100"/></svg>
+<span class="quota-percent">—</span><span class="quota-label">待同步</span>
+</button><script src="sidebar-quota.js"></script></html>

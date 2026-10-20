@@ -7,7 +7,7 @@ The character itself is rendered by a compatible Codex client; its native voice,
 
 ## Source preview
 
-Version 0.10.6 is a source preview, not a notarized consumer download.
+Version 0.10.12 is a source preview, not a notarized consumer download.
 Building requires a macOS 26 SDK, Node.js 22.12+ and pnpm 10.19+.
 The deployment target is macOS 14, but older systems and Intel hardware are not yet validated.
 Native Liquid Glass is used on macOS 26, with material fallbacks on older systems.
@@ -23,6 +23,14 @@ zsh scripts/install.sh
 
 The installer refuses to overwrite an existing app. It does not launch the app, add login items or modify Codex.
 Optional character installation: `zsh scripts/install-pet.sh`.
+
+## Sidebar weekly quota
+
+An independent Rootnote overlay attaches to the navigation rail of compatible desktop clients. It needs macOS Accessibility permission and a visible, recognizable sidebar. Clicking it toggles the existing quota page; it shares one panel with the performance entry and does not show or hide the pet.
+
+The capsule follows the host window and appearance independently of the Rootnote panel theme. Only its visual background is 95% opaque; the input layer is invisible and outer regions pass clicks through. Reduce Transparency uses an opaque background. Unknown geometry, occlusion or unsupported appearance formats hide the overlay instead of guessing a position.
+
+Host sidebar structure and theme fields are compatibility details, not stable public APIs. Rootnote does not patch the client or recolor its native pet controls. See the Chinese [sidebar guide](侧栏额度.md).
 
 ## Boundaries
 

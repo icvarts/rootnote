@@ -20,6 +20,7 @@ svg{width:18px;height:18px;stroke-width:1.6;flex:none}.topbar>svg{color:var(--mu
 .row{height:33px;padding:0 9px;display:flex;align-items:center;gap:9px;font-size:13px;white-space:nowrap;overflow:hidden}.row svg{width:15px;height:15px;color:var(--muted)}.row.selected{border-radius:8px;background:var(--selected)}.row.indent{padding-left:28px}.row .dot{height:9px;width:9px;flex:none;border-radius:50%;background:#48a6ea}.row .purple{background:#ab70df}.row.muted{color:var(--muted)}.section-label{font-size:12px;color:var(--muted);padding:21px 9px 8px}.section-label.inline{display:flex;align-items:center;gap:5px}.section-label svg{width:12px;height:12px}
 .main{position:absolute;left:340px;top:44px;right:4px;bottom:4px;background:var(--main);border-radius:13px 13px 12px 0;overflow:hidden}.conversation{padding:67px 48px 0;font-size:14px;line-height:1.8}.user-message{margin:0 0 40px auto;padding:13px 17px;border-radius:20px;background:var(--bubble);width:max-content;max-width:100%}.assistant p{margin:0 0 12px}.assistant ol{margin:0;padding-left:23px;line-height:2.15}.message-actions{display:flex;gap:14px;margin-top:20px;color:var(--muted)}.message-actions svg{width:15px;height:15px}
 .composer{position:absolute;left:34px;right:34px;bottom:29px;height:111px;padding:15px 18px;border-radius:21px;background:var(--bubble);color:var(--muted);font-size:14px}.composer-tools{position:absolute;bottom:13px;left:18px;right:14px;display:flex;align-items:center;gap:18px}.composer-tools .end{margin-left:auto}.send{width:29px;height:29px;display:grid;place-items:center;border-radius:50%;color:var(--main);background:var(--ink)}.send svg{width:18px;height:18px}
+.preview-pet{position:absolute;right:42px;bottom:160px;width:88px;height:112px;object-fit:contain}
 .caption{height:44px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}.caption strong{font-weight:500;color:var(--ink)}.caption strong::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:1px}
 </style>
 <div id="window">
@@ -27,7 +28,7 @@ svg{width:18px;height:18px;stroke-width:1.6;flex:none}.topbar>svg{color:var(--mu
   <nav id="rail" aria-label="应用导航">
     <span class="nav-icon active"><i data-lucide="house"></i></span><span class="nav-icon"><i data-lucide="layers"></i></span><span class="nav-icon"><i data-lucide="clock-3"></i></span><span class="nav-icon"><i data-lucide="circle-user-round"></i></span><span class="nav-icon"><i data-lucide="ellipsis"></i></span><span class="nav-divider"></span><span class="nav-icon"><i data-lucide="blocks"></i></span>
     <iframe id="capsule-frame" src="../../Resources/guard/sidebar-quota.html" title="实际额度组件，合成剩余 69%"></iframe>
-    <span id="example-account" aria-label="示例账号">EX</span>
+    <span id="example-account" aria-label="示例账号，展示字母 CV">CV</span>
   </nav>
   <aside id="project-list">
     <div class="sidebar-title">ChatGPT<i data-lucide="chevron-down"></i><span class="tools"><i data-lucide="bell"></i><i data-lucide="search"></i></span></div>
@@ -42,6 +43,7 @@ svg{width:18px;height:18px;stroke-width:1.6;flex:none}.topbar>svg{color:var(--mu
   </aside>
   <main class="main">
     <div class="conversation"><div class="user-message">请帮我整理一份演示计划。</div><div class="assistant"><p>下面是一份简短的演示计划：</p><ol><li>明确目标与范围。</li><li>分步完成并检查。</li><li>整理结果，记录下一步。</li></ol><div class="message-actions"><i data-lucide="copy"></i><i data-lucide="thumbs-up"></i><i data-lucide="thumbs-down"></i><i data-lucide="ellipsis"></i></div></div></div>
+    <img id="preview-pet" class="preview-pet" src="../../Assets/current-desktop-pet.png" alt="Rootnote 宠物素材，示意摆放于空白处">
     <div class="composer">输入你的想法…<div class="composer-tools"><i data-lucide="plus"></i><span class="end"></span><i data-lucide="mic"></i><span class="send"><i data-lucide="arrow-up"></i></span></div></div>
   </main>
 </div>

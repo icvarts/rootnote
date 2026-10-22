@@ -31,7 +31,10 @@ const { pathToFileURL } = require('node:url');
       const host = await page.evaluate(() => {
         const rect = id => { const r = document.getElementById(id).getBoundingClientRect();
           return { x: r.x, y: r.y, width: r.width, height: r.height }; };
+        const pet = document.getElementById('preview-pet');
+        const composer = document.querySelector('.composer').getBoundingClientRect();
         return { rail: rect('rail'), list: rect('project-list'), account: rect('example-account'),
+          pet: rect('preview-pet'), petLoaded: pet.complete && pet.naturalWidth > 0, composerTop: composer.top,
           iframe: rect('capsule-frame'), text: document.body.innerText, icons: document.querySelectorAll('svg.lucide').length };
       });
       const capsule = await frame.locator('#quota').evaluate(element => {
@@ -48,19 +51,23 @@ const { pathToFileURL } = require('node:url');
       assert.ok(x + capsule.width < host.list.x);
       assert.match(capsule.text, /69%/);
       assert.equal(capsule.background, appearance === 'dark' ? 'rgba(22, 25, 24, 0.95)' : 'rgba(240, 242, 241, 0.95)');
-      assert.match(host.text, /示例账号|EX/);
+      assert.match(host.text, /CV/);
+      assert.ok(host.petLoaded);
+      assert.ok(host.pet.x > host.list.x + host.list.width);
+      assert.ok(host.pet.y + host.pet.height < host.composerTop);
       assert.match(host.text, /合成界面位置示意/);
       assert.ok(host.icons >= 20);
-      assert.doesNotMatch(host.text, /@|\/Users\/|CV|icvarts|工作台铸造|真实账号/);
+      assert.doesNotMatch(host.text, /@|\/Users\/|EX|icvarts|工作台铸造|真实账号/);
       await page.mouse.move(990, 754);
       await page.screenshot({ path: path.join(images, `sidebar-context-${appearance}.png`) });
       results.push({ appearance, railWidth: 52, capsule: { x, y, width: capsule.width, height: capsule.height },
-        account: host.account, gap: 12, centered: true, projectListClear: true, syntheticQuota: 69 });
+        account: host.account, accountLetters: 'CV', pet: host.pet, petLoaded: true, petClearOfComposer: true,
+        gap: 12, centered: true, projectListClear: true, syntheticQuota: 69 });
     }
     assert.deepEqual(errors, []);
     assert.ok(requests.every(protocol => protocol === 'file'));
     const files = ['docs/previews/sidebar-context.html', 'Resources/guard/sidebar-quota.html',
-      'Resources/guard/sidebar-quota.css', 'Resources/guard/sidebar-quota.js'];
+      'Resources/guard/sidebar-quota.css', 'Resources/guard/sidebar-quota.js', 'Assets/current-desktop-pet.png'];
     const report = { ok: true, results, browserErrors: errors, externalRequests: 0, realClientCaptured: false,
       realAccountRead: false, componentSourceHashes: Object.fromEntries(files.map(file => [file,
         crypto.createHash('sha256').update(fs.readFileSync(path.join(root, file))).digest('hex')])) };

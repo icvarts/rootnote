@@ -28,9 +28,16 @@ Optional character installation: `zsh scripts/install-pet.sh`.
 
 An independent Rootnote overlay attaches to the navigation rail of compatible desktop clients. It needs macOS Accessibility permission and a visible, recognizable sidebar. Clicking it toggles the existing quota page; it shares one panel with the performance entry and does not show or hide the pet.
 
-<p><img src="images/sidebar-dark.png" width="66" alt="Dark sidebar quota capsule with a synthetic 69 percent remaining">&nbsp;&nbsp;<img src="images/sidebar-light.png" width="66" alt="Light sidebar quota capsule with a synthetic 69 percent remaining"></p>
+<img src="images/sidebar-context-dark.png" width="100%" alt="Synthetic Codex layout showing the dark quota capsule at the bottom of the far-left navigation rail, above the example avatar">
 
-Dark (left) and light (right): enlarged previews of the actual web component using synthetic quota data, without real accounts or conversations. These are component previews, not full-client screenshots.
+<details>
+<summary>View the light appearance in context</summary>
+
+<img src="images/sidebar-context-light.png" width="100%" alt="Synthetic light layout with the quota capsule horizontally centered above the example avatar, separated by 12 pt">
+
+</details>
+
+The capsule sits at the bottom of the far-left navigation rail, centered above the account avatar. The 52 pt rail, 36×116 pt capsule surface and 12 pt gap follow the implementation. The capsule uses the actual web component; the surrounding client layout, projects, conversations, account and 69% quota are synthetic. These are location illustrations, not desktop captures.
 
 The capsule follows the host window and appearance independently of the Rootnote panel theme. Only its visual background is 95% opaque; the input layer is invisible and outer regions pass clicks through. Reduce Transparency uses an opaque background. Unknown geometry, occlusion or unsupported appearance formats hide the overlay instead of guessing a position.
 

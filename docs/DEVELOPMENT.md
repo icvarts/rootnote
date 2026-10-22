@@ -22,6 +22,8 @@
 `npm test` 同时检查模型与 npm/lockfile/原生 bundle 的版本一致性。
 `npm run test:browser` 包含现有面板和侧栏组件；侧栏冻结样式位于 `tests/fixtures/sidebar-quota-approved.css`，不引用外部工作台。
 
+正文中的位置示意可用 `node scripts/render-sidebar-previews.cjs` 重建（同样支持 `PLAYWRIGHT_CHANNEL=chrome`）。它仅打开 `docs/previews/sidebar-context.html` 合成页面与实际胶囊组件，阻止外部请求，检查 52 pt 导航条、居中、36×116 pt 底色及 12 pt 头像间隔；不采集客户端或真实账号。图片写入 `docs/images/`，验证报告写入忽略目录 `qa-output/sidebar-context/`。
+
 原生离线测试使用独立输出与状态目录，不运行常驻 AppDelegate。
 需要测试原生玻璃布局时，可在有桌面会话的 macOS 26 上使用
 `npm run test:native:ui`（先运行 `npm run test:native` 构建测试程序）。

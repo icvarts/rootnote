@@ -34,9 +34,16 @@ Rootnote 是一个面向 macOS 的本地桌面伴侣：用宠物与环境场景�
 
 不用先显示宠物，就能在兼容客户端的侧栏底部查看周额度。点击胶囊打开额度页，再点一次关闭；与性能圈共用同一个面板。
 
-<p><img src="docs/images/sidebar-dark.png" width="66" alt="深色侧栏周额度胶囊，合成演示剩余 69%">&nbsp;&nbsp;<img src="docs/images/sidebar-light.png" width="66" alt="浅色侧栏周额度胶囊，合成演示剩余 69%"></p>
+<img src="docs/images/sidebar-context-dark.png" width="100%" alt="Codex 合成界面位置示意：深色额度胶囊位于最左侧导航条底部、示例账号头像上方">
 
-左：深色；右：浅色。以上是实际网页组件的放大预览，使用合成的 69% 额度，不包含真实账号或会话。实际入口附着在导航条底部并跟随窗口；需要辅助功能权限和兼容的侧栏结构。详见[侧栏使用与兼容性](docs/侧栏额度.md)。
+<details>
+<summary>查看浅色位置示意</summary>
+
+<img src="docs/images/sidebar-context-light.png" width="100%" alt="Codex 合成界面位置示意：浅色额度胶囊与账号头像保持水平居中，上下间隔 12 pt">
+
+</details>
+
+胶囊位于**最左侧导航条底部、账号头像上方**，与头像水平居中。图中导航条为 52 pt，胶囊底色为 36×116 pt，距头像 12 pt，复用实际组件；宿主界面为合成位置示意，所有项目、会话、账号与 69% 额度均为虚构，不是实屏截图。实际入口需要辅助功能权限和兼容的侧栏结构。详见[侧栏使用与兼容性](docs/侧栏额度.md)。
 
 ## 为什么做它
 

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>侧栏额度位置示意</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:1000px;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+:root{--rail:#293137;--sidebar:#1b2024;--main:#101619;--top:#20282d;--line:#30383d;--selected:#2b343a;--ink:#e8edef;--muted:#919da5;--bubble:#242d32;--caption:#151c20;--accent:#3ed29c}
+:root[data-theme="light"]{--rail:#e7ebed;--sidebar:#f2f4f5;--main:#fff;--top:#edf0f2;--line:#d9e0e3;--selected:#e2e8eb;--ink:#29343b;--muted:#74828b;--bubble:#edf1f3;--caption:#f4f6f7;--accent:#087f56}
+body{color:var(--ink);background:var(--caption)}#window{position:relative;width:1000px;height:720px;background:var(--rail);border-radius:15px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+.topbar{height:44px;background:var(--top);display:flex;align-items:center;gap:13px;padding:0 18px;border-bottom:1px solid var(--line);font-size:13px}
+.lights{display:flex;gap:8px;margin-right:10px}.lights b{width:10px;height:10px;border-radius:50%;background:#ff6057}.lights b:nth-child(2){background:#ffbd2e}.lights b:nth-child(3){background:#28c840}
+svg{width:18px;height:18px;stroke-width:1.6;flex:none}.topbar>svg{color:var(--muted)}.top-title{position:absolute;left:356px;display:flex;align-items:center;gap:9px}.top-title svg{width:15px;color:var(--muted)}.top-right{margin-left:auto;color:var(--muted)}
+#rail{position:absolute;left:0;top:44px;bottom:4px;width:52px;display:flex;align-items:center;flex-direction:column;padding-top:8px;gap:8px}
+.nav-icon{width:36px;height:36px;display:grid;place-items:center;color:var(--muted);border-radius:10px}.nav-icon.active{background:var(--selected);color:var(--ink)}.nav-icon.active svg{fill:currentColor;stroke-width:1.1}.nav-divider{width:24px;height:1px;background:var(--line);margin:3px 0}
+#example-account{position:absolute;left:8px;bottom:4px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#edc843;color:#352f13;font-size:11px;font-weight:600}
+#capsule-frame{position:absolute;left:4px;bottom:48px;width:44px;height:124px;border:0;pointer-events:none}
+#project-list{position:absolute;left:52px;top:44px;bottom:4px;width:288px;border-right:1px solid var(--line);padding:17px 8px;background:var(--sidebar);border-radius:14px 0 0 14px}
+.sidebar-title{padding:0 8px 20px;display:flex;align-items:center;gap:5px;font-size:17px;font-weight:600}.sidebar-title>svg{width:13px;height:13px}.sidebar-title .tools{margin-left:auto;display:flex;gap:13px;color:var(--muted)}.tools svg{width:16px;height:16px}
+.row{height:33px;padding:0 9px;display:flex;align-items:center;gap:9px;font-size:13px;white-space:nowrap;overflow:hidden}.row svg{width:15px;height:15px;color:var(--muted)}.row.selected{border-radius:8px;background:var(--selected)}.row.indent{padding-left:28px}.row .dot{height:9px;width:9px;flex:none;border-radius:50%;background:#48a6ea}.row .purple{background:#ab70df}.row.muted{color:var(--muted)}.section-label{font-size:12px;color:var(--muted);padding:21px 9px 8px}.section-label.inline{display:flex;align-items:center;gap:5px}.section-label svg{width:12px;height:12px}
+.main{position:absolute;left:340px;top:44px;right:4px;bottom:4px;background:var(--main);border-radius:13px 13px 12px 0;overflow:hidden}.conversation{padding:67px 48px 0;font-size:14px;line-height:1.8}.user-message{margin:0 0 40px auto;padding:13px 17px;border-radius:20px;background:var(--bubble);width:max-content;max-width:100%}.assistant p{margin:0 0 12px}.assistant ol{margin:0;padding-left:23px;line-height:2.15}.message-actions{display:flex;gap:14px;margin-top:20px;color:var(--muted)}.message-actions svg{width:15px;height:15px}
+.composer{position:absolute;left:34px;right:34px;bottom:29px;height:111px;padding:15px 18px;border-radius:21px;background:var(--bubble);color:var(--muted);font-size:14px}.composer-tools{position:absolute;bottom:13px;left:18px;right:14px;display:flex;align-items:center;gap:18px}.composer-tools .end{margin-left:auto}.send{width:29px;height:29px;display:grid;place-items:center;border-radius:50%;color:var(--main);background:var(--ink)}.send svg{width:18px;height:18px}
+.caption{height:44px;padding:0 13px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}.caption strong{font-weight:500;color:var(--ink)}.caption strong::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);margin-right:8px;vertical-align:1px}
+</style>
+<div id="window">
+  <header class="topbar"><span class="lights"><b></b><b></b><b></b></span><i data-lucide="arrow-left"></i><i data-lucide="arrow-right"></i><i data-lucide="panel-left"></i><span class="top-title"><i data-lucide="folder"></i>示例：整理草稿</span><span class="top-right"><i data-lucide="ellipsis"></i></span></header>
+  <nav id="rail" aria-label="应用导航">
+    <span class="nav-icon active"><i data-lucide="house"></i></span><span class="nav-icon"><i data-lucide="layers"></i></span><span class="nav-icon"><i data-lucide="clock-3"></i></span><span class="nav-icon"><i data-lucide="circle-user-round"></i></span><span class="nav-icon"><i data-lucide="ellipsis"></i></span><span class="nav-divider"></span><span class="nav-icon"><i data-lucide="blocks"></i></span>
+    <iframe id="capsule-frame" src="../../Resources/guard/sidebar-quota.html" title="实际额度组件，合成剩余 69%"></iframe>
+    <span id="example-account" aria-label="示例账号">EX</span>
+  </nav>
+  <aside id="project-list">
+    <div class="sidebar-title">ChatGPT<i data-lucide="chevron-down"></i><span class="tools"><i data-lucide="bell"></i><i data-lucide="search"></i></span></div>
+    <div class="row"><i data-lucide="square-pen"></i>新聊天</div><div class="row"><i data-lucide="circle-dot"></i>你的 dot</div>
+    <div class="section-label">置顶</div>
+    <div class="row"><i data-lucide="folder-open"></i><span class="dot purple"></span>示例项目</div>
+    <div class="row indent selected"><span class="dot"></span>示例：整理草稿</div>
+    <div class="row indent">示例：检查页面</div><div class="row indent">示例：讨论想法</div><div class="row indent muted">展开显示</div>
+    <div class="row" style="margin-top:18px"><i data-lucide="folder"></i>演示笔记</div>
+    <div class="row indent">示例：本周灵感</div><div class="row indent">示例：阅读清单</div>
+    <div class="section-label inline">项目<i data-lucide="chevron-right"></i></div><div class="section-label inline">最近<i data-lucide="chevron-right"></i></div>
+  </aside>
+  <main class="main">
+    <div class="conversation"><div class="user-message">请帮我整理一份演示计划。</div><div class="assistant"><p>下面是一份简短的演示计划：</p><ol><li>明确目标与范围。</li><li>分步完成并检查。</li><li>整理结果，记录下一步。</li></ol><div class="message-actions"><i data-lucide="copy"></i><i data-lucide="thumbs-up"></i><i data-lucide="thumbs-down"></i><i data-lucide="ellipsis"></i></div></div></div>
+    <div class="composer">输入你的想法…<div class="composer-tools"><i data-lucide="plus"></i><span class="end"></span><i data-lucide="mic"></i><span class="send"><i data-lucide="arrow-up"></i></span></div></div>
+  </main>
+</div>
+<footer class="caption"><strong>周额度位于左侧导航条底部，头像上方</strong><span>合成界面位置示意 · 非实屏截图</span></footer>
+<script src="../../Resources/guard/lucide.min.js"></script><script>lucide.createIcons();</script>
+</html>
